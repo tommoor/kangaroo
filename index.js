@@ -4,7 +4,7 @@ var app = express();
 var session = require('express-session');
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
-var appHost = process.env.ENVIRONMENT == 'development' ? 'http://localhost:5000' : 'https://perimeer.herokuapp.com';
+var appHost = process.env.ENVIRONMENT == 'development' ? 'http://localhost:5000' : 'http://perimeer.herokuapp.com';
 var Twitter = require('twitter');
 
 // oauth
