@@ -5,6 +5,7 @@ var session = require('express-session');
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
 var appHost = process.env.ENVIRONMENT == 'development' ? 'http://localhost:5000' : 'https://perimeer.herokuapp.com';
+var Twitter = require('twitter');
 
 // oauth
 passport.use(new TwitterStrategy({
@@ -14,8 +15,8 @@ passport.use(new TwitterStrategy({
   },
   function(token, tokenSecret, profile, done) {
     done(null, {
-      token: token,
-      tokenSecret: tokenSecret,
+      access_token: token,
+      access_token_secret: tokenSecret,
       profile: profile
     });
   }
@@ -23,8 +24,8 @@ passport.use(new TwitterStrategy({
 
 passport.serializeUser(function(user, done) {
   done(null, {
-    token: user.token,
-    tokenSecret: user.tokenSecret,
+    access_token: user.access_token,
+    access_token_secret: user.access_token_secret,
     id: user.profile.id,
     username: user.profile.username
   });
@@ -59,10 +60,24 @@ app.get('/auth/twitter/callback', passport.authenticate('twitter', {
 
 app.get('/', function(request, response) {
   if (request.user) {
-    response.render('home', {user: request.user});
+    response.render('home');
   } else {
     response.render('signin');
   }
+});
+
+app.get('/live', function(request, response) {
+
+  var client = new Twitter({
+    consumer_key: process.env.TWITTER_CONSUMER_KEY,
+    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+    access_token_key: request.user.access_token,
+    access_token_secret: request.user.access_token_secret
+  });
+  
+  client.get('search/tweets', {q: 'LIVE NOW mrk.tv'}, function(error, data, res){
+     response.send(JSON.stringify(data));
+  });
 });
 
 // start

@@ -1,3 +1,26 @@
 <h1>{{{ user.username }}}</h1>
 
 <p>You're logged in</p>
+
+<iframe id="player" width="100%" height="100%"></iframe>
+
+<script>
+  var getLiveStream = function(){
+    $.ajax({
+      url: '/live',
+      dataType: 'json',
+      success: function(data){
+        var total = data.statuses.length;
+        var stream = Math.floor(Math.random()*data.statuses.length);
+        var tweet = data.statuses[stream];
+        var urls = tweet.entities.urls;
+        var first_url = urls[0]
+      
+        $('#player').attr('src', first_url.expanded_url);
+      }
+    });
+  };
+  
+  setInterval(getLiveStream, 15*1000);
+  getLiveStream();
+</script>
