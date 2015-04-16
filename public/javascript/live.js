@@ -1,3 +1,6 @@
+var countdown = 30;
+var countdownTimer;
+
 var getRandomStream = function(callback){
   $.ajax({
     url: '/live',
@@ -43,6 +46,7 @@ var updateInfo = function(data) {
 }
 
 var playRandomStream = function() {
+  countdown = 30;
 
   getRandomStream(function(broadcast){
     console.log(broadcast);
@@ -51,5 +55,30 @@ var playRandomStream = function() {
   });
 }
 
-setInterval(playRandomStream, 30*1000);
+var togglePause = function() {
+  if (countdownTimer) { 
+    clearTimeout(countdownTimer);
+  } else {
+    incrementTimer();
+  }
+}
+
+var setupControls = function() {
+  $('#pause').on('click', togglePause);
+  $('#skip').on('click', playRandomStream);
+}
+
+var incrementTimer = function() {
+  if (countdown <= 0) {
+    playRandomStream();
+  } else {
+    countdown--;
+  }
+  
+  $('#timer').text(countdown);
+  countdownTimer = setTimeout(incrementTimer, 1000);
+}
+
+setupControls();
+incrementTimer();
 playRandomStream();

@@ -21,19 +21,37 @@ embed {
   padding: 20px;
   left: 0;
   opacity: 0.8;
-  
-  h1,
-  h2,
-  h3 {
-    font-weight: normal;
-    background: rgba(0,0,0,0.4);
-  }
-  
-  h2 {
-    font-size: 18px;
-  }
-  
-  h3 {
-    margin: 0;
-  }
+}
+
+h1,
+h2,
+h3 {
+  font-weight: normal;
+  background: rgba(0,0,0,0.4);
+}
+
+h2 {
+  font-size: 18px;
+}
+
+h3 {
+  margin: 0;
+}
+
+#controls {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: #fff;
+  padding: 20px;
+}
+
+#controls a {
+  cursor: pointer;
+  padding: 10px;
+}
+
+#controls a:hover {
+  background: #fff;
+  color: #111;
 }
