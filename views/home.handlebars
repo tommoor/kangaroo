@@ -1,9 +1,5 @@
-<h1>{{{ user.username }}}</h1>
-
-<p>You're logged in</p>
-
 <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
- codebase="" id="player" width="640" height="360">
+ codebase="" id="player" width="360" height="640">
   <param name="movie"  value="player/flashlsChromeless.swf" />
   <param name="quality" value="high" />
   <param name="swliveconnect" value="true" />
@@ -11,7 +7,7 @@
   <param name="bgcolor" value="#0" />
   <param name="allowFullScreen" value="true" />
 
-  <embed src="player/flashlsChromeless.swf" width="640" height="360" name="player"
+  <embed src="player/flashlsChromeless.swf" width="360" height="640" name="player"
               quality="high"
               bgcolor="#0"
               align="middle" allowFullScreen="true"
@@ -21,6 +17,12 @@
               pluginspage="http://www.macromedia.com/go/getflashplayer" >
   </embed>
 </object>
+
+<div id="overlay">
+  <h1 id="broadcaster-name"></h1>
+  <h2 id="stream-caption"></h2>
+  <h3 id="stream-location"></h3>
+</div>
 
 <script>
   var getRandomStream = function(callback){
@@ -61,8 +63,21 @@
     }
   }
   
-  getRandomStream(function(broadcast){
-    console.log("Loading " + broadcast.followupActions.playlist);
-    loadPlayerWithUrl(broadcast.followupActions.playlist);
-  });
+  var updateInfo = function(data) {
+    $('#broadcaster-name').text(data.broadcaster.displayName);
+    $('#stream-caption').text(data.caption);
+    $('#stream-location').text(data.location);
+  }
+  
+  var playRandomStream = function() {
+  
+    getRandomStream(function(broadcast){
+      console.log(broadcast);
+      updateInfo(broadcast.result);
+      loadPlayerWithUrl(broadcast.followupActions.playlist);
+    });
+  }
+  
+  setInterval(playRandomStream, 30*1000);
+  playRandomStream();
 </script>
