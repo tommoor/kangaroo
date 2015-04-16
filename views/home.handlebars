@@ -2,25 +2,67 @@
 
 <p>You're logged in</p>
 
-<iframe id="player" width="100%" height="100%"></iframe>
+<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
+ codebase="" id="player" width="640" height="360">
+  <param name="movie"  value="player/flashlsChromeless.swf" />
+  <param name="quality" value="high" />
+  <param name="swliveconnect" value="true" />
+  <param name="allowScriptAccess" value="sameDomain" />
+  <param name="bgcolor" value="#0" />
+  <param name="allowFullScreen" value="true" />
+
+  <embed src="player/flashlsChromeless.swf" width="640" height="360" name="player"
+              quality="high"
+              bgcolor="#0"
+              align="middle" allowFullScreen="true"
+              allowScriptAccess="sameDomain"
+              type="application/x-shockwave-flash"
+              swliveconnect="true"
+              pluginspage="http://www.macromedia.com/go/getflashplayer" >
+  </embed>
+</object>
 
 <script>
-  var getLiveStream = function(){
+  var getRandomStream = function(callback){
     $.ajax({
       url: '/live',
       dataType: 'json',
       success: function(data){
-        var total = data.statuses.length;
-        var stream = Math.floor(Math.random()*data.statuses.length);
-        var tweet = data.statuses[stream];
-        var urls = tweet.entities.urls;
-        var first_url = urls[0]
-      
-        $('#player').attr('src', first_url.expanded_url);
+        loadBroadcastData(data.stream_id, callback);
       }
     });
   };
   
-  setInterval(getLiveStream, 15*1000);
-  getLiveStream();
+  var loadBroadcastData = function(stream_id, callback) {
+    $.ajax({
+      url: 'https://resources.meerkatapp.co/broadcasts/'+ stream_id +'/summary',
+      dataType: 'json',
+      success: callback
+    });
+  }
+  
+  var loadPlayerWithUrl = function(url) {
+    var obj = getFlashMovieObject("player");
+    if (obj != null) {
+      obj.playerLoad(url);
+      obj.playerPlay();
+    }
+  }
+  
+  var getFlashMovieObject = function(movieName) {
+    if (window.document[movieName]) {
+        return window.document[movieName];
+    }
+    if (navigator.appName.indexOf("Microsoft Internet")==-1) {
+      if (document.embeds && document.embeds[movieName])
+        return document.embeds[movieName];
+    } else {
+      return document.getElementById(movieName);
+    }
+  }
+  
+  getRandomStream(function(broadcast){
+    console.log("Loading " + broadcast.followupActions.playlist);
+    loadPlayerWithUrl(broadcast.followupActions.playlist);
+  });
 </script>

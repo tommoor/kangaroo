@@ -1,5 +1,6 @@
 var express = require('express');
 var exphbs  = require('express-handlebars');
+var http  = require('http');
 var app = express();
 var session = require('express-session');
 var passport = require('passport');
@@ -76,7 +77,28 @@ app.get('/live', function(request, response) {
   });
   
   client.get('search/tweets', {q: 'LIVE NOW mrk.tv'}, function(error, data, res){
-     response.send(JSON.stringify(data));
+
+     var total = data.statuses.length;
+     var stream = Math.floor(Math.random()*data.statuses.length);
+     var tweet = data.statuses[stream];
+     var urls = tweet.entities.urls;
+     var first_url = urls[0];
+     
+     // expand the mrk.tv url into the full path
+     http.get(first_url.expanded_url, function(res){
+       
+       // extract the stream id
+       var location = res.headers.location;
+       var location_parts = location.split('/');
+       var stream_id = location_parts[location_parts.length-1];
+       
+       // send it back to the client
+       response.send({
+         service: 'meerkat',
+         stream_id: stream_id,
+         tweet: tweet
+       });
+     });
   });
 });
 
