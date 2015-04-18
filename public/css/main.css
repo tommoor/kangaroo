@@ -5,6 +5,7 @@ body {
   margin: 0;
   padding: 0;
   background: #000;
+  background: linear-gradient(top bottom, black 0%, #2f3a3d 100%);
   text-align: center;
 }
 

@@ -76,7 +76,7 @@ app.get('/live', function(request, response) {
     access_token_secret: request.user.access_token_secret
   });
   
-  client.get('search/tweets', {q: 'LIVE NOW mrk.tv'}, function(error, data, res){
+  client.get('search/tweets', {q: 'mrk.tv OR periscope.tv/w'}, function(error, data, res){
 
      var total = data.statuses.length;
      var stream = Math.floor(Math.random()*data.statuses.length);
@@ -84,21 +84,36 @@ app.get('/live', function(request, response) {
      var urls = tweet.entities.urls;
      var first_url = urls[0];
      
-     // expand the mrk.tv url into the full path
-     http.get(first_url.expanded_url, function(res){
+     // meerkat
+     if (first_url.expanded_url.match(/mrk\.tv/)) {
+       http.get(first_url.expanded_url, function(res){
        
-       // extract the stream id
-       var location = res.headers.location;
+         // extract the stream id
+         var location = res.headers.location;
+         var location_parts = location.split('/');
+         var stream_id = location_parts[location_parts.length-1];
+       
+         // send it back to the client
+         response.send({
+           service: 'meerkat',
+           stream_id: stream_id,
+           tweet: tweet
+         });
+       });
+    
+     // periscope
+     } else {
+       var location = first_url.expanded_url;
        var location_parts = location.split('/');
        var stream_id = location_parts[location_parts.length-1];
-       
+     
        // send it back to the client
        response.send({
-         service: 'meerkat',
+         service: 'periscope',
          stream_id: stream_id,
          tweet: tweet
        });
-     });
+     }
   });
 });
 

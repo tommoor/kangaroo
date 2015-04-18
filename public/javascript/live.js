@@ -6,14 +6,38 @@ var getRandomStream = function(callback){
     url: '/live',
     dataType: 'json',
     success: function(data){
-      loadBroadcastData(data.stream_id, callback);
+      console.log(data);
+      
+      if (data.service == 'meerkat') {
+        loadMeerkatData(data.stream_id, function(broadcast){
+          updateInfo(broadcast.result);
+          callback(broadcast.followupActions.playlist);
+        });
+      } else {
+        loadPeriscopeData(data.stream_id, function(broadcast){
+          updateInfo({
+            broadcaster: {
+              
+            }
+          });
+          callback(broadcast.hls_url);
+        });
+      }
     }
   });
 };
 
-var loadBroadcastData = function(stream_id, callback) {
+var loadMeerkatData = function(stream_id, callback) {
   $.ajax({
     url: 'https://resources.meerkatapp.co/broadcasts/'+ stream_id +'/summary',
+    dataType: 'json',
+    success: callback
+  });
+}
+
+var loadPeriscopeData = function(stream_id, callback) {
+  $.ajax({
+    url: 'https://api.periscope.tv/api/v2/getAccessPublic?token=' + stream_id,
     dataType: 'json',
     success: callback
   });
@@ -48,10 +72,9 @@ var updateInfo = function(data) {
 var playRandomStream = function() {
   countdown = 30;
 
-  getRandomStream(function(broadcast){
-    console.log(broadcast);
-    updateInfo(broadcast.result);
-    loadPlayerWithUrl(broadcast.followupActions.playlist);
+  getRandomStream(function(url){
+    console.log("loading", url);
+    loadPlayerWithUrl(url);
   });
 }
 
