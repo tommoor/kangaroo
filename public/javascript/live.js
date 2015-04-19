@@ -1,5 +1,5 @@
 var countdown = 30;
-var countdownTimer;
+var countdownTimeout;
 
 var getRandomStream = function(callback){
   $.ajax({
@@ -40,7 +40,10 @@ var getFlashMovieObject = function(movieName) {
 }
 
 var updateInfo = function(data) {
-  $('#broadcaster-name').text(data.broadcaster.displayName);
+  if (data.broadcaster) {
+    $('#broadcaster-name').text(data.broadcaster.displayName);
+  }
+  $('#stream-watchers').text(data.watchersCount);
   $('#stream-caption').text(data.caption);
   $('#stream-location').text(data.location);
 }
@@ -50,15 +53,22 @@ var playRandomStream = function() {
 
   getRandomStream(function(broadcast){
     console.log(broadcast);
-    updateInfo(broadcast.result);
-    loadPlayerWithUrl(broadcast.followupActions.playlist);
+    if (broadcast.result.status == 'live') {
+      updateInfo(broadcast.result);
+      loadPlayerWithUrl(broadcast.followupActions.playlist);
+    } else {
+      playRandomStream();
+    }
   });
 }
 
 var togglePause = function() {
-  if (countdownTimer) { 
-    clearTimeout(countdownTimer);
+  if (countdownTimeout) { 
+    clearTimeout(countdownTimeout);
+    countdownTimeout = null;
+    $('#pause').text('Resume');
   } else {
+    $('#pause').text('Pause');
     incrementTimer();
   }
 }
@@ -76,7 +86,7 @@ var incrementTimer = function() {
   }
   
   $('#timer').text(countdown);
-  countdownTimer = setTimeout(incrementTimer, 1000);
+  countdownTimeout = setTimeout(incrementTimer, 1000);
 }
 
 setupControls();
